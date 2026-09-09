@@ -1,3 +1,3 @@
-# RIKGW
+# RSGW
 
-Rust IoT Kafka Gateway
+Rust Sensor Gateway
