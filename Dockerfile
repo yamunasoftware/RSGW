@@ -6,7 +6,7 @@ RUN cargo build --release
 
 FROM debian:trixie
 WORKDIR /main
-COPY resources ./resources
+COPY config.env /main/config.env
 COPY --from=builder /main/target/release/rsgw /main/rsgw
 RUN apt-get update && apt-get install -y ca-certificates
 ENTRYPOINT ["/main/rsgw"]

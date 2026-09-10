@@ -1,25 +1,32 @@
-use crate::conf;
 use crate::sensor_reading;
 
+use std::env;
 use linux_embedded_hal::{Delay, I2cdev};
 use xca9548a::{SlaveAddr, Xca9548a};
 use bme280::i2c::BME280;
 use sensor_reading::SensorReading;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 pub fn data_readout() -> Vec<SensorReading> {
+  let system_id = env::var("SYSTEM_ID").unwrap();
+  let system_type = env::var("SYSTEM_TYPE").unwrap();
+
   let mut sensor_readings: Vec<SensorReading> = Vec::new();
-  let config = conf::get_system_config();
+  let start = SystemTime::now();
+  let since_epoch = start.duration_since(UNIX_EPOCH).unwrap();
+  let unix_timestamp = since_epoch.as_secs();
   
   for channel in 0..8 {
     init_channel(channel);
     let measurements = read_channel();
     let sensor_message = SensorReading {
-      device_id: config[0].clone(),
-      device_type: config[1].clone(),
+      device_id: system_id.clone(),
+      device_type: system_type.clone(),
       channel: channel,
       temperature: measurements[0],
       humidity: measurements[1],
-      pressure: measurements[2]
+      pressure: measurements[2],
+      timestamp: unix_timestamp
     };
     sensor_readings.push(sensor_message);
   }

@@ -7,5 +7,6 @@ pub struct SensorReading {
   pub channel: u8,
   pub temperature: f32,
   pub humidity: f32,
-  pub pressure: f32
+  pub pressure: f32,
+  pub timestamp: u64
 }

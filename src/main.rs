@@ -1,7 +1,7 @@
-mod conf;
 mod sensor_reading;
 mod readout;
 
+use std::env;
 use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION};
 use reqwest::{Client, Method};
 use tokio::time::{sleep, Duration};
@@ -9,10 +9,16 @@ use log::{error, info};
 
 #[tokio::main]
 async fn main() {
+  if let Err(e) = dotenvy::from_filename("config.env") {
+    error!("Failed to Load Configuration File");
+  }
+
   let delay: u64 = 10;
-  let api_config = conf::get_api_config();
+  let api_url = env::var("API_URL").unwrap();
+  let api_key = env::var("API_KEY").unwrap();
+
   let mut headers = HeaderMap::new();
-  let auth_value = format!("Bearer {}", &api_config[1]);
+  let auth_value = format!("Bearer {}", api_key.clone());
   headers.insert(
     AUTHORIZATION, 
     HeaderValue::from_str(&auth_value).unwrap()
@@ -20,7 +26,7 @@ async fn main() {
 
   let client = Client::new();
   let request_template = client
-    .request(Method::POST, &api_config[0])
+    .request(Method::POST, api_url.clone())
     .headers(headers);
 
   loop {
